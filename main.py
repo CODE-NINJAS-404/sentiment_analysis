@@ -15,13 +15,35 @@ def main():
     st.markdown("""
         <style>
         .main {
-            background-color: #f0f2f6;
+            background-color: #f7f7f7;
         }
         .stButton > button {
             background-color: #4CAF50;
             color: white;
             border-radius: 8px;
             padding: 10px 24px;
+            border: none;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .stButton > button:hover {
+            background-color: #45a049;
+        }
+        .stTextArea textarea {
+            background-color: #ffffff;
+            color: #333333;
+            border: 1px solid #d4d4d4;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .stMarkdown p {
+            font-size: 18px;
+            color: #333333;
+        }
+        .stTextArea textarea:focus {
+            border-color: #4CAF50;
         }
         </style>
     """, unsafe_allow_html=True)
