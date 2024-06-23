@@ -3,6 +3,8 @@ import matplotlib
 import sentiment as se
 import pandas as pd
 import matplotlib.pyplot as plt
+import nltk
+from ntlk.corpus import stopwords
 
 # Custom CSS for styling
 def set_custom_style():
