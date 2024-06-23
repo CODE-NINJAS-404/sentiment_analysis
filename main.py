@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot
 import sentiment as se
 import pandas as pd
 import matplotlib.pyplot as plt
