@@ -20,12 +20,11 @@ nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# Instantiate tokenizer, stemmer,stopwords, and WordNetLemmatizer
+# Instantiate tokenizer, stemmer, stopwords, and WordNetLemmatizer
 tokenizer = RegexpTokenizer(r'\w+')
 ps = PorterStemmer()
 en_stopwords = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
-
 
 # Function for cleaning text
 def getCleanedText(text):
@@ -67,39 +66,42 @@ def getCleanedText(text):
 
     return clean_text
 
-
 # Creating a new column of cleaned data
 df['new'] = df['text'].apply(getCleanedText)
-
 
 # Assigning the columns to x and y
 x = df['new']
 y = df['sentiment']
 
-
 # TF-IDF Vectorization
-tfidf_vectorizer = TfidfVectorizer(max_features=10000)  # You can adjust max_features as needed
+tfidf_vectorizer = TfidfVectorizer(max_features=10000)
 x_train_tfidf = tfidf_vectorizer.fit_transform(x)
 
-
-# Train the SVM Classifier
-classifier = SVC(kernel = 'rbf', random_state = 0)
+# Train the SVM Classifier with probability=True
+classifier = SVC(kernel='rbf', random_state=0, probability=True)
 classifier.fit(x_train_tfidf, y)
-
-
 
 # Make predictions on the given input from user
 def prediction(input_txt):
-    # It Checks the is with spaces or with a normal sentence
     if input_txt.isspace():
         sentiment = [0]
-        return sentiment
+        return {
+            'sentiment': 'neutral',
+            'positive_probability': 0.0,
+            'negative_probability': 0.0
+        }
     else:
         test = [input_txt]
-        x_test = getCleanedText(text = test)
+        x_test = getCleanedText(test[0])
         x_test_tfidf = tfidf_vectorizer.transform([x_test])
-        sentiment = classifier.predict(x_test_tfidf)
-        return sentiment
+        sentiment_prob = classifier.predict_proba(x_test_tfidf)
+        sentiment_label = classifier.predict(x_test_tfidf)
 
+        positive_prob = sentiment_prob[0][list(classifier.classes_).index('positive')]
+        negative_prob = sentiment_prob[0][list(classifier.classes_).index('negative')]
 
-
+        return {
+            'sentiment': sentiment_label[0],
+            'positive_probability': positive_prob * 100,
+            'negative_probability': negative_prob * 100
+        }
