@@ -15,10 +15,11 @@ def main():
     st.markdown("""
         <style>
         .main {
-            background-color: #f7f7f7;
+            background-color: #000000;
+            color: #ffffff;
         }
         .stButton > button {
-            background-color: #4CAF50;
+            background-color: #1DB954;
             color: white;
             border-radius: 8px;
             padding: 10px 24px;
@@ -28,22 +29,25 @@ def main():
             transition: background-color 0.3s ease;
         }
         .stButton > button:hover {
-            background-color: #45a049;
+            background-color: #17a74a;
         }
         .stTextArea textarea {
-            background-color: #ffffff;
-            color: #333333;
-            border: 1px solid #d4d4d4;
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #555555;
             border-radius: 8px;
             padding: 10px;
             font-size: 16px;
         }
         .stMarkdown p {
             font-size: 18px;
-            color: #333333;
+            color: #ffffff;
         }
         .stTextArea textarea:focus {
-            border-color: #4CAF50;
+            border-color: #1DB954;
+        }
+        .css-1v3fvcr p, .css-1v3fvcr h1 {
+            color: #ffffff;
         }
         </style>
     """, unsafe_allow_html=True)
