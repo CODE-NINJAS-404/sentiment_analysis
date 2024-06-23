@@ -1,82 +1,104 @@
 import streamlit as st
 import sentiment as se
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Custom CSS for styling
+def set_custom_style():
+    st.markdown(
+        """
+        <style>
+        .title {
+            font-size: 3em;
+            color: #2e4053;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .subtitle {
+            font-size: 1.5em;
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .result {
+            font-size: 1.2em;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .positive {
+            color: #27ae60;
+        }
+        .negative {
+            color: #c0392b;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+# Function to analyze sentiment and accumulate results
+def analyze_sentiment_batch(user_input):
+    results = []
+    statements = user_input.split('\n')  # Split input by new lines for multiple statements
+    for statement in statements:
+        if statement.strip():  # Check if statement is not empty
+            output = se.prediction(statement)
+            results.append(output)  # Append sentiment result
+    return results
+
+# Function to calculate and display sentiment percentages
+def display_sentiment_stats(results):
+    if not results:
+        return
+
+    st.subheader('Sentiment Analysis Results')
+    df = pd.DataFrame(results)
+    sentiment_counts = df['sentiment'].value_counts()
+    total_count = len(results)
+    positive_percentage = (sentiment_counts.get('positive', 0) / total_count) * 100
+    negative_percentage = (sentiment_counts.get('negative', 0) / total_count) * 100
+
+    st.write(f"Total Statements Analyzed: {total_count}")
+    st.write(f"Percentage of Positive Sentiments: {positive_percentage:.2f}%")
+    st.write(f"Percentage of Negative Sentiments: {negative_percentage:.2f}%")
+
+    # Plotting sentiment distribution
+    plt.figure(figsize=(8, 6))
+    plt.bar(sentiment_counts.index, sentiment_counts.values, color=['#27ae60', '#c0392b'])
+    plt.xlabel('Sentiment')
+    plt.ylabel('Count')
+    plt.title('Sentiment Distribution')
+    st.pyplot(plt)
+
+# Function to display individual sentiment results
+def display_individual_results(results):
+    st.subheader('Individual Sentiment Results')
+    for result in results:
+        sentiment = result['sentiment']
+        positive_prob = result['positive_probability']
+        negative_prob = result['negative_probability']
+        st.markdown(f'<p class="result {sentiment}">Sentiment: {sentiment.capitalize()} </p>', unsafe_allow_html=True)
+        st.write(f"Positive Probability: {positive_prob:.2f}%")
+        st.write(f"Negative Probability: {negative_prob:.2f}%")
+        st.markdown('---')
 
 # Streamlit app layout
 def main():
-    # Set up the page configuration
-    st.set_page_config(
-        page_title="Social Media Sentiment Analysis",
-        page_icon="😊",
-        layout="centered",
-        initial_sidebar_state="collapsed",
-    )
+    set_custom_style()
+
+    st.title(' Sentiment Analyzer')
+    st.markdown('---')
+    st.markdown('Enter social media statements to analyze sentiment:')
     
-    # Add some custom styling
-    st.markdown("""
-        <style>
-        .main {
-            background-color: #000000;
-            color: #ffffff;
-        }
-        .stButton > button {
-            background-color: #1DB954;
-            color: white;
-            border-radius: 8px;
-            padding: 10px 24px;
-            border: none;
-            font-size: 16px;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
-        }
-        .stButton > button:hover {
-            background-color: #17a74a;
-        }
-        .stTextArea textarea {
-            background-color: #333333;
-            color: #ffffff;
-            border: 1px solid #555555;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 16px;
-        }
-        .stMarkdown p {
-            font-size: 18px;
-            color: #ffffff;
-        }
-        .stTextArea textarea:focus {
-            border-color: #1DB954;
-        }
-        .css-1v3fvcr p, .css-1v3fvcr h1 {
-            color: #ffffff;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    user_input = st.text_area('Input your text here:', '')
 
-    # App title and description
-    st.title('Social Media Sentiment Analysis App')
-    st.write('Enter any social media statements to analyze their sentiment.')
-
-    # User input area
-    st.text_area('Input your text here:', key='user_input', height=150)
-
-    # Analyze button
     if st.button('Analyze'):
-        user_input = st.session_state.user_input
         if user_input:
-            output = se.prediction(user_input)
-            if output[0] == "positive":
-                st.success("**Sentiment:** Positive 😀")
-            elif output[0] == 'negative':
-                st.error("**Sentiment:** Negative 😞")
-            else:
-                st.warning("**Something went wrong. Please type another sentence.**")
-
-    # Sidebar information
-    st.sidebar.header('About the App')
-    st.sidebar.write("""
-        This app analyzes the sentiment of social media statements. It uses natural language processing (NLP) techniques 
-        to classify the sentiment as positive or negative. Simply enter a statement and click 'Analyze' to see the result.
-    """)
+            statements = user_input.split('\n')
+            with st.spinner('Analyzing...'):
+                results = analyze_sentiment_batch(user_input)
+                display_individual_results(results)
+                display_sentiment_stats(results)
 
 if __name__ == '__main__':
     main()
